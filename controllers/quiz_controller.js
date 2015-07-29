@@ -43,3 +43,4 @@ exports.index = function(req, res){
     res.render('quizes/index', {quizes: quizes});
     }).catch(function(error) { next(error);});
   }
+};
