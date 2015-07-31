@@ -51,11 +51,11 @@ exports.index = function(req, res){
   if(req.query.search) {
     var filtro = (req.query.search || '').replace(" ", "%");
     models.Quiz.findAll({where:["pregunta like ?", '%'+filtro+'%'],order:'pregunta'}).then(function(quizes){
-    res.render('quizes/index', {quizes: quizes, errors: []});
+    res.render('quizes/index.ejs', {quizes: quizes, errors: []});
     }).catch(function(error) { next(error);});
   } else {
     models.Quiz.findAll().then(function(quizes){
-    res.render('quizes/index', {quizes: quizes, errors: []});
+    res.render('quizes/index.ejs', {quizes: quizes, errors: []});
     }).catch(function(error) { next(error);});
   }
 };
@@ -67,4 +67,29 @@ exports.new = function(req, res){
   );
   res.render('quizes/new', {quiz: quiz, errors: []});
 };
+
+// GET /quizes/:id/edit
+exports.edit = function(req, res){
+  var quiz = req.quiz; // autoload de intancia de quiz
+
+  res.render('quizes/edit', {quiz: quiz, errors: []});
+};
+
+// PUT /quizes/:id
+exports.update = function(req, res){
+     var quiz= models.Quiz.build(req.body.quiz);
+
+     req.quiz.pregunta = req.body.quiz.pregunta;
+     req.quiz.respuesta = req.body.quiz.respuesta;
+
+     var errors = quiz.validate();
+     if(errors){
+           res.render('quizes/edit', {quiz: req.quiz, errors: err.errors});
+     } else {
+            quiz  // save: guarda campos pregunta y respuesta en DB
+            .save( {fields: ["pregunta", "respuesta"]})
+             .then( function(){ res.redirect('/quizes');});
+     }  // Redirección HTTP a lista de preguntas (URL relativo)
+};
+
 
