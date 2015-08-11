@@ -31,7 +31,7 @@ if (errors)
 // GET /quizes/:id
 exports.show = function(req, res) {
   models.Quiz.find(req.params.quizId).then(function(quiz) {
-       res.render('quizes/show', { quiz: req.quiz, errors: []});
+       res.render('quizes/show', { quiz: req.quiz});
   })
 };
 
@@ -42,8 +42,7 @@ exports.answer = function(req, res) {
   if (req.query.respuesta === req.quiz.respuesta) {
     resultado = 'Correcto';
   }
-    res.render('quizes/answer',{quiz: req.quiz, respuesta: resultado, 
-      errors: [] });
+    res.render('quizes/answer',{quiz: req.quiz, respuesta: resultado });
  })
 };
 
