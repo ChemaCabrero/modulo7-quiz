@@ -26,15 +26,18 @@ exports.create = function(req, res) {
     userController.autenticar(login, password, function(error, user) {
 
         if (error) {  // si hay error retornamos mensajes de error de sesión
-            req.session.errors = [{"message": 'Se ha producido un error: '+error}];
-            res.redirect("/login");
-            return;
+           req.session.errors = [{"message": 'Se ha producido un error: '+error}];
+           res.redirect("/login");
+           return;
         }
 
         // Crear req.session.user y guardar campos   id  y  username
         // La sesión se define por la existencia de:    req.session.user
         req.session.user = {id:user.id, username:user.username};
 
+        // req.session.tiempo guarda la hora del reloj del sistema para autologout
+        req.session.tiempo = new Date().getTime();
+        req.session.autoLogout= false; //muestra mensaje desconexion superior a2 minutos
         res.redirect(req.session.redir.toString());// redirección a path anterior a login
     });
 };
@@ -42,5 +45,9 @@ exports.create = function(req, res) {
 // DELETE /logout   -- Destruir sesion 
 exports.destroy = function(req, res) {
     delete req.session.user;
-    res.redirect(req.session.redir.toString()); // redirect a path anterior a login
+   if (req.session.autoLogout){//si el valor paso a true en app.js
+      res.redirect("/login");//redireccionamos y mostramos mensaje de alert desconexion +2 min.
+   }else{
+   res.redirect(req.session.redir.toString());// redirect a path anterior a login
+   }
 };

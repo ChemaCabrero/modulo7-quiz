@@ -31,15 +31,27 @@ app.use(session());
 // Helpers dinamicos:
 app.use(function(req, res, next){
      // guardar path en session.redir para despues de login
-     if(!req.path.match(/\/login|\/logout/)) {
+     if(!req.path.match(/\login|\/logout|\/user/)) {
        req.session.redir = req.path;
      }
-     
+
      //Hacer visible req.session en las vistas
      res.locals.session = req.session;
+     // Auto-logout de sesion
+     if (req.session.tiempo){
+        var ultimoTiempo = new Date().getTime();
+        var intervalo = ultimoTiempo - req.session.tiempo;
+        if (intervalo > (2 * 60 * 1000)) {
+           delete req.session.tiempo;
+           req.session.autoLogout = true;
+           res.redirect("/logout");
+        } else {
+           req.session.tiempo = ultimoTiempo;
+        }
+     };
+
      next();
 });
-
 
 app.use('/', routes);
 // catch 404 and forward to error handler
